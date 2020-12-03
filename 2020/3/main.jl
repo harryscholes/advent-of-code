@@ -13,8 +13,7 @@ function trees_on_path(M, right, down)
     while i ≤ height
         n_trees += M[i, j]
         i += down
-        j += right
-        j = j == width ? width : j % width
+        j = mod1(j + right, width)
     end
     return n_trees
 end
