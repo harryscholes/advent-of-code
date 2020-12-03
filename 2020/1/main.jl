@@ -31,18 +31,6 @@ function g(xs)
     end
 end
 
-# Part one: O(n)
-function g(xs)
-    s = Set{Int}()
-    for x in xs
-        y = target - x
-        if y in s
-            return x * y
-        end
-        push!(s, x)
-    end
-end
-
 g(xs)
 
 # Part two: O(n)
@@ -56,23 +44,6 @@ function h(xs)
                 return x * y * z
             end
         end
-    end
-end
-
-h(xs)
-
-# Part two: O(n)
-function h(xs)
-    s = Set{Int}()
-    for x in xs
-        r = target - x
-        for y in 1:r÷2
-            z = r - y
-            if y in s && z in s
-                return x * y * z
-            end
-        end
-        push!(s, x)
     end
 end
 
