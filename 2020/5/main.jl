@@ -1,17 +1,21 @@
+const n_rows = 128
+const row_width = 8
+
 function binary_search(xs, low, high, low_symbol, high_symbol)
     for x in xs
+        diff = (high - low) ÷ 2
         if x == low_symbol
-            high = low + (high - low) ÷ 2
+            high = low + diff
         elseif x == high_symbol
-            low = high - (high - low) ÷ 2
+            low = high - diff
         end
     end
-    return row[end] == low_symbol ? low : high
+    return xs[end] == low_symbol ? low : high
 end
 
 function decode(bp)
-    row = binary_search(bp[1:7], 0, 127, 'F', 'B')
-    seat = binary_search(bp[8:end], 0, 7, 'L', 'R')
+    row = binary_search(bp[1:7], 0, n_rows - 1, 'F', 'B')
+    seat = binary_search(bp[8:end], 0, row_width - 1, 'L', 'R')
     return row, seat
 end
 
@@ -32,22 +36,26 @@ end
 find_highest_seat_id("input.txt")
 
 # Part two
-using DataStructures
-
 function find_my_seat(fp)
-    d = DefaultDict{Int,Vector{Int}}([])
-    for bp in eachline("input.txt")
+    d = Dict{Int,Vector{Bool}}()
+    for bp in eachline(fp)
         row, seat = decode(bp)
-        push!(d[row], seat)
+        if !haskey(d, row)
+            d[row] = falses(8)
+        end
+        d[row][seat+1] = true
     end
 
+    checked_rows = Set{Int}()
     for (row, seats) in d
-        if length(seats) != 8
-            if length(d[row-1]) == 8 && length(d[row+1]) == 8
-                seat = setdiff(0:7, seats)[1]
+        if row ∉ checked_rows &&
+            !all(d[row]) &&
+            haskey(d, row-1) && all(d[row-1]) &&
+            haskey(d, row+1) && all(d[row+1])
+                seat = findfirst(x->!x, seats) - 1
                 return row, seat, seat_id(row, seat)
-            end
         end
+        push!(checked_rows, row)
     end
 end
 
