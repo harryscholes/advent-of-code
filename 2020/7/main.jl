@@ -55,7 +55,7 @@ struct Bag
     colour::String
 end
 
-function graph()
+function graph2()
     graph = DefaultDict{String,Vector{Bag}}([])
     for policy in eachline(fp)
         occursin("no other bags", policy) && continue
@@ -75,7 +75,7 @@ function graph()
     return graph
 end
 
-function bfs(graph)
+function bfs2(graph)
     q = Queue{Tuple{String,Int}}()
     enqueue!(q, (my_bag, 1))
     bags = Int[]
@@ -90,5 +90,24 @@ function bfs(graph)
     return bags
 end
 
-g = graph()
-sum(bfs(d))
+g = graph2()
+sum(bfs2(g))
+
+function recurse2(graph::AbstractDict, bag_amount::Tuple{Bag,<:Integer}, bags=Int[])
+    bag, n_outer = bag_amount
+    n_inner = n_outer * bag.amount
+    push!(bags, n_inner)
+    for bag in graph[bag.colour]
+        recurse2(graph, (bag, n_inner), bags)
+    end
+    return bags
+end
+
+function recurse2(graph::AbstractDict, bag::AbstractString)
+    bag_amount = (Bag(1, bag), 1)
+    bags = recurse2(graph, bag_amount)
+    return bags[2:end]
+end
+
+g = graph2()
+sum(recurse2(g, my_bag))
