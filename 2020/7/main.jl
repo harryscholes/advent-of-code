@@ -5,7 +5,7 @@ const fp = "input.txt"
 const my_bag = "shiny gold"
 
 # Part one
-function graph()
+function inner_to_outer_directed_graph()
     graph = DefaultDict{String,Vector{String}}([])
     for policy in eachline(fp)
         occursin("no other bags", policy) && continue
@@ -35,18 +35,20 @@ function bfs(graph)
     return bags
 end
 
-g = graph()
+g = inner_to_outer_directed_graph()
 length(bfs(g))
 
 function recurse(graph, bag, bags=Set{String}())
     for bag in graph[bag]
-        push!(bags, bag)
-        recurse(graph, bag, bags)
+        if bag ∉ bags
+            push!(bags, bag)
+            recurse(graph, bag, bags)
+        end
     end
     return bags
 end
 
-g = graph()
+g = inner_to_outer_directed_graph()
 length(recurse(g, my_bag))
 
 # Part two
@@ -55,7 +57,7 @@ struct Bag
     colour::String
 end
 
-function graph2()
+function outer_to_inner_directed_graph()
     graph = DefaultDict{String,Vector{Bag}}([])
     for policy in eachline(fp)
         occursin("no other bags", policy) && continue
@@ -75,7 +77,7 @@ function graph2()
     return graph
 end
 
-function bfs2(graph)
+function bfs(graph)
     q = Queue{Tuple{String,Int}}()
     enqueue!(q, (my_bag, 1))
     bags = Int[]
@@ -90,24 +92,19 @@ function bfs2(graph)
     return bags
 end
 
-g = graph2()
-sum(bfs2(g))
+g = outer_to_inner_directed_graph()
+sum(bfs(g))
 
-function recurse2(graph::AbstractDict, bag_amount::Tuple{Bag,<:Integer}, bags=Int[])
-    bag, n_outer = bag_amount
-    n_inner = n_outer * bag.amount
-    push!(bags, n_inner)
+function recurse(graph, bag, n_outer, bags=Int[])
     for bag in graph[bag.colour]
-        recurse2(graph, (bag, n_inner), bags)
+        n_inner = n_outer * bag.amount
+        push!(bags, n_inner)
+        recurse(graph, bag, n_inner, bags)
     end
     return bags
 end
 
-function recurse2(graph::AbstractDict, bag::AbstractString)
-    bag_amount = (Bag(1, bag), 1)
-    bags = recurse2(graph, bag_amount)
-    return bags[2:end]
-end
+recurse(graph, bag) = recurse(graph, Bag(1, bag), 1)
 
-g = graph2()
-sum(recurse2(g, my_bag))
+g = outer_to_inner_directed_graph()
+sum(recurse(g, my_bag))
