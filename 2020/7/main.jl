@@ -38,6 +38,17 @@ end
 g = graph()
 length(bfs(g))
 
+function recurse(graph, bag, bags=Set{String}())
+    for bag in graph[bag]
+        push!(bags, bag)
+        recurse(graph, bag, bags)
+    end
+    return bags
+end
+
+g = graph()
+length(recurse(g, my_bag))
+
 # Part two
 struct Bag
     amount::Int
