@@ -14,7 +14,7 @@ function program(ops)
     n = length(ops)
     i = 1
     t = 0
-    seen = Set{Int}()
+    seen = falses(n)
     while true
         op = ops[i]
         if op.op == "acc"
@@ -25,9 +25,8 @@ function program(ops)
         elseif op.op == "nop"
             i += 1
         end
-        i > n && break
-        i in seen && break
-        push!(seen, i)
+        (i > n || seen[i]) && break
+        seen[i] = true
     end
     return i, t
 end
