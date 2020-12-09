@@ -1,21 +1,21 @@
 using DataStructures
 
-mutable struct LRUCache{T}
+mutable struct Cache{T}
     s::Set{T}
-    l::MutableLinkedList{T}
+    q::Queue{T}
     n::Int
 
-    function LRUCache{T}(n::Integer) where T
-        new{T}(Set{T}(), MutableLinkedList{T}(), n)
+    function Cache{T}(n::Integer) where T
+        new{T}(Set{T}(), Queue{T}(), n)
     end
 end
 
-function Base.push!(c::LRUCache{T}, item::T) where T
-    if length(c.l) == c.n
-        evicted = pop!(c.l)
+function Base.push!(c::Cache{T}, item::T) where T
+    if length(c.s) == c.n
+        evicted = dequeue!(c.q)
         delete!(c.s, evicted)
     end
-    pushfirst!(c.l, item)
+    enqueue!(c.q, item)
     push!(c.s, item)
     return c
 end
@@ -26,7 +26,7 @@ const xs = map(x->parse(Int, x), eachline(fp))
 
 # Part one
 function f(xs)
-    c = LRUCache{Int}(preamble)
+    c = Cache{Int}(preamble)
     for x in xs
         if length(c.s) == c.n 
             is_sum = false
