@@ -22,6 +22,9 @@ end
 
 g = graph(vs)
 
+length(vs) # 96 nodes
+sum(length.(collect(values(g)))) # 169 edges
+
 # Part one
 
 function longest_path(vs, g)
@@ -65,14 +68,11 @@ function topological_sort(vs, g)
     return l
 end
 
-ts = topological_sort(vs, g)
-@assert issorted(ts) # Node list was already topologically sorted
-
 # Find all paths in a DAG: O(|V| + |E|)
 function paths(vs, g)
     paths_from = Dict{Int,Int}(v => 0 for v in vs)
     paths_from[vs[end]] += 1
-    for n in reverse(vs)
+    for n in reverse(topological_sort(vs, g))
         for m in g[n]
             paths_from[n] += paths_from[m]
         end
@@ -80,7 +80,7 @@ function paths(vs, g)
     return paths_from[vs[1]]
 end
 
-paths(vs, g)
+paths(vs, g) # 14_173_478_093_824 paths between the start and end nodes
 
 # Poor time complexity
 function dfs(vs)
