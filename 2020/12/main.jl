@@ -95,7 +95,7 @@ function navigate(instructions; x, y, wx, wy)
             elseif d == 270
                 wx -= i.v
             else 
-                error("curr_d = $curr_d")
+                error("d = $d")
             end
         elseif i.d == F
             x += wx * i.v
