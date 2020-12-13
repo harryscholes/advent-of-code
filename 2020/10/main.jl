@@ -65,6 +65,10 @@ function topological_sort(vs, g)
             end
         end
     end
+
+    for (v, es) in g
+        length(es) > 0 && throw(error("graph is not a DAG"))
+    end
     return l
 end
 
