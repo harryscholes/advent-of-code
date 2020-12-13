@@ -37,6 +37,9 @@ end
 
 manhattan(x, y) = abs(x) + abs(y)
 
+# Rotate 90° right
+rotate(x, y) = (y, -x)
+
 # Part one
 
 function navigate(instructions; x, y, d)
@@ -94,26 +97,21 @@ function navigate(instructions; x, y, wx, wy)
                 wy -= i.v
             elseif d == 270
                 wx -= i.v
-            else 
-                error("d = $d")
+            end
+        elseif i.d == L || i.d == R
+            angle = Int(i.v)
+            # L is the inverse of R
+            if i.d == L 
+                angle = 360 - angle 
+            end
+            # All rotations are a multiple of 90° rotations
+            n = angle ÷ 90
+            for _ in 1:n
+                wx, wy = rotate(wx, wy)
             end
         elseif i.d == F
             x += wx * i.v
             y += wy * i.v
-        elseif i.d == L || i.d == R
-            angle = Int(i.v)
-            if i.d == L 
-                angle = 360 - angle # L is the inverse of R
-            end
-            if angle == 90
-                wx, wy = wy, -wx
-            elseif angle == 180
-                wx, wy = -wx, -wy
-            elseif angle == 270
-                wx, wy = -wy, wx
-            else 
-                error("angle = $angle")
-            end
         end
     end
     return x, y
