@@ -37,6 +37,15 @@ end
 # Rotate 90° right
 rotate(x, y) = (y, -x)
 
+function rotate(x, y, angle)
+    # All rotations are a multiple of 90° rotations
+    n = angle ÷ 90
+    for _ in 1:n
+        x, y = rotate(x, y)
+    end
+    return x, y
+end
+
 function move!(x, y, d, v)
     if d == 0
         y += v
@@ -96,12 +105,8 @@ function navigate(instructions; x, y, wx, wy)
             if i.d == L 
                 angle = 360 - angle 
             end
-            # All rotations are a multiple of 90° rotations
-            n = angle ÷ 90
-            for _ in 1:n
-                wx, wy = rotate(wx, wy)
-            end
-            
+            wx, wy = rotate(wx, wy, angle)
+
         elseif i.d == F
             x += wx * i.v
             y += wy * i.v
