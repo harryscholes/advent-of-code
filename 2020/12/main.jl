@@ -5,8 +5,8 @@ const fp = "input.txt"
     E = 90
     S = 180
     W = 270
-    L
-    R
+    L = -1
+    R = 1
     F
 end
 
@@ -72,11 +72,8 @@ function navigate(instructions; x, y, d)
     for i in instructions
         if i.d == L || i.d == R
             v = i.v
-            if i.d == L
-                v *= -1
-            end
+            v *= Int(i.d) # L is the inverse of R
             d = mod(d + v, 360)
-            continue
         
         elseif i.d == N || i.d == E || i.d == S || i.d == W
             temporary_d = Int(i.d)
@@ -86,7 +83,6 @@ function navigate(instructions; x, y, d)
             x, y = move!(x, y, d, i.v)
         end
     end
-
     return x, y
 end
 
@@ -101,10 +97,8 @@ function navigate(instructions; x, y, wx, wy)
         
         elseif i.d == L || i.d == R
             angle = Int(i.v)
-            # L is the inverse of R
-            if i.d == L 
-                angle = 360 - angle 
-            end
+            angle *= Int(i.d) # L is the inverse of R
+            angle = mod(-angle, 360)
             wx, wy = rotate(wx, wy, angle)
 
         elseif i.d == F
