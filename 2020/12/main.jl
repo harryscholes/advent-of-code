@@ -98,7 +98,7 @@ function navigate(instructions; x, y, wx, wy)
         elseif i.d == L || i.d == R
             angle = Int(i.v)
             angle *= Int(i.d) # L is the inverse of R
-            angle = mod(-angle, 360)
+            angle = mod(angle, 360)
             wx, wy = rotate(wx, wy, angle)
 
         elseif i.d == F
