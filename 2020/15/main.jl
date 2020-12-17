@@ -36,7 +36,7 @@ function nᵗʰ_number(input, n)
 end
 
 # Part one
-@time nᵗʰ_number(input, 2020)
+nᵗʰ_number(input, 20)
 
 # Part one
-@time nᵗʰ_number(input, 30_000_000)
+nᵗʰ_number(input, 30_000_000)
