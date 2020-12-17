@@ -36,7 +36,7 @@ function part_one(t, bs)
             bus = b
         end
     end
-    return b.id * w
+    return bus.id * wait
 end
 
 t, bs = load()
