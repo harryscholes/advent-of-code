@@ -1,16 +1,40 @@
 use std::{
+    fmt,
     fs::File,
     io::{self, BufRead, BufReader},
+    num,
 };
 
-fn read_input() -> Result<Vec<i32>, io::Error> {
+#[derive(Debug)]
+enum Error {
+    ParseIntError(num::ParseIntError),
+    IoError(io::Error),
+}
+
+impl std::error::Error for Error {}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.to_string())
+    }
+}
+
+impl From<num::ParseIntError> for Error {
+    fn from(e: num::ParseIntError) -> Self {
+        Error::ParseIntError(e)
+    }
+}
+
+impl From<io::Error> for Error {
+    fn from(e: io::Error) -> Self {
+        Error::IoError(e)
+    }
+}
+
+fn read_input() -> Result<Vec<i32>, Error> {
     let file = File::open("input.txt")?;
     let buf = BufReader::new(file);
-    let depths: Result<Vec<i32>, io::Error> = buf
-        .lines()
-        .map(|l| Ok(l?.parse::<i32>().unwrap()))
-        .collect();
-    depths
+    buf.lines().map(|l| Ok(l?.parse()?)).collect()
 }
 
 fn part_one(depths: &[i32]) -> usize {
