@@ -1,10 +1,11 @@
 use std::{
-    fmt,
     fs::File,
     io::{self, BufRead, BufReader},
     num,
     str::FromStr,
 };
+
+use thiserror::Error;
 
 #[derive(Debug, PartialEq, Eq)]
 struct Instruction {
@@ -27,35 +28,8 @@ impl FromStr for Direction {
             "up" => Ok(Direction::Up),
             "down" => Ok(Direction::Down),
             "forward" => Ok(Direction::Forward),
-            _ => Err(Error::ParseDirectionError {}),
+            _ => Err(Error::ParseDirectionError(s.to_string())),
         }
-    }
-}
-
-#[derive(Debug)]
-enum Error {
-    ParseDirectionError,
-    ParseIntError(num::ParseIntError),
-    IoError(io::Error),
-}
-
-impl std::error::Error for Error {}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.to_string())
-    }
-}
-
-impl From<num::ParseIntError> for Error {
-    fn from(e: num::ParseIntError) -> Self {
-        Error::ParseIntError(e)
-    }
-}
-
-impl From<io::Error> for Error {
-    fn from(e: io::Error) -> Self {
-        Error::IoError(e)
     }
 }
 
@@ -110,6 +84,16 @@ fn part_two(instructions: &[Instruction]) -> i32 {
     }
 
     horizontal_position * depth
+}
+
+#[derive(Error, Debug)]
+enum Error {
+    #[error("could not parse `{0}` into `Direction`")]
+    ParseDirectionError(String),
+    #[error(transparent)]
+    ParseInt(#[from] num::ParseIntError),
+    #[error(transparent)]
+    Io(#[from] io::Error),
 }
 
 fn main() {

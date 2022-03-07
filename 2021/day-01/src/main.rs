@@ -1,40 +1,19 @@
 use std::{
-    fmt,
     fs::File,
     io::{self, BufRead, BufReader},
     num,
 };
 
-#[derive(Debug)]
-enum Error {
-    ParseIntError(num::ParseIntError),
-    IoError(io::Error),
-}
+use thiserror::Error;
 
-impl std::error::Error for Error {}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.to_string())
-    }
-}
-
-impl From<num::ParseIntError> for Error {
-    fn from(e: num::ParseIntError) -> Self {
-        Error::ParseIntError(e)
-    }
-}
-
-impl From<io::Error> for Error {
-    fn from(e: io::Error) -> Self {
-        Error::IoError(e)
-    }
-}
-
-fn read_input() -> Result<Vec<i32>, Error> {
+fn read_input() -> Result<Vec<String>, Error> {
     let file = File::open("input.txt")?;
     let buf = BufReader::new(file);
-    buf.lines().map(|l| Ok(l?.parse()?)).collect()
+    buf.lines().map(|l| Ok(l?)).collect()
+}
+
+fn parse_input(lines: &[String]) -> Result<Vec<i32>, Error> {
+    lines.iter().map(|l| Ok(l.parse()?)).collect()
 }
 
 fn part_one(depths: &[i32]) -> usize {
@@ -50,9 +29,20 @@ fn part_two(depths: &[i32]) -> usize {
     part_one(&triplets)
 }
 
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error(transparent)]
+    ParseInt(#[from] num::ParseIntError),
+    #[error(transparent)]
+    Io(#[from] io::Error),
+}
+
 fn main() {
-    let depths = read_input().unwrap();
+    let input = read_input().unwrap();
+    let depths = parse_input(&input).unwrap();
+    // part 1
     dbg!(part_one(&depths));
+    // part 2
     dbg!(part_two(&depths));
 }
 
