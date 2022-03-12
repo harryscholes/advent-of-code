@@ -1,19 +1,12 @@
 use std::{
-    fs::File,
-    io::{self, BufRead, BufReader},
+    io::{self, BufRead},
     num,
 };
-
 use thiserror::Error;
+use utils::read_input;
 
-fn read_input() -> Result<Vec<String>, Error> {
-    let file = File::open("input.txt")?;
-    let buf = BufReader::new(file);
-    buf.lines().map(|l| Ok(l?)).collect()
-}
-
-fn parse_input(lines: &[String]) -> Result<Vec<i32>, Error> {
-    lines.iter().map(|l| Ok(l.parse()?)).collect()
+fn parse_input(buf: &mut dyn BufRead) -> Result<Vec<i32>, Error> {
+    buf.lines().map(|l| Ok(l?.parse()?)).collect()
 }
 
 fn part_one(depths: &[i32]) -> usize {
@@ -37,28 +30,41 @@ pub enum Error {
     Io(#[from] io::Error),
 }
 
-fn main() {
-    let input = read_input().unwrap();
-    let depths = parse_input(&input).unwrap();
-    // part 1
+fn run() -> Result<(), Error> {
+    let depths = parse_input(&mut read_input()?)?;
     dbg!(part_one(&depths));
-    // part 2
     dbg!(part_two(&depths));
+    Ok(())
+}
+
+fn main() {
+    run().unwrap();
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{part_one, part_two};
+    use crate::{parse_input, part_one, part_two};
 
-    const TEST_INPUT: [i32; 10] = [199, 200, 208, 210, 200, 207, 240, 269, 260, 263];
+    const TEST_INPUT: &str = r#"199
+200
+208
+210
+200
+207
+240
+269
+260
+263"#;
 
     #[test]
     fn test_part_one() {
-        assert_eq!(part_one(&TEST_INPUT), 7);
+        let input = parse_input(&mut TEST_INPUT.as_bytes()).unwrap();
+        assert_eq!(part_one(&input), 7);
     }
 
     #[test]
     fn test_part_two() {
-        assert_eq!(part_two(&TEST_INPUT), 5);
+        let input = parse_input(&mut TEST_INPUT.as_bytes()).unwrap();
+        assert_eq!(part_two(&input), 5);
     }
 }

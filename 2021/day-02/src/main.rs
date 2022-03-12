@@ -1,11 +1,10 @@
 use std::{
-    fs::File,
-    io::{self, BufRead, BufReader},
+    io::{self, BufRead},
     num,
     str::FromStr,
 };
-
 use thiserror::Error;
+use utils::read_input;
 
 #[derive(Debug, PartialEq, Eq)]
 struct Instruction {
@@ -33,16 +32,10 @@ impl FromStr for Direction {
     }
 }
 
-fn read_input() -> Result<Vec<String>, Error> {
-    let file = File::open("input.txt")?;
-    let buf = BufReader::new(file);
-    buf.lines().map(|l| Ok(l?)).collect()
-}
-
-fn parse_input(lines: &[String]) -> Result<Vec<Instruction>, Error> {
-    lines
-        .iter()
+fn parse_input(buf: &mut dyn BufRead) -> Result<Vec<Instruction>, Error> {
+    buf.lines()
         .map(|s| {
+            let s = s?;
             let strs = s.split(" ").collect::<Vec<_>>();
             Ok(Instruction {
                 direction: strs[0].parse()?,
@@ -96,11 +89,15 @@ enum Error {
     Io(#[from] io::Error),
 }
 
-fn main() {
-    let input = read_input().unwrap();
-    let instuctions = parse_input(&input).unwrap();
+fn run() -> Result<(), Error> {
+    let instuctions = parse_input(&mut read_input()?)?;
     dbg!(part_one(&instuctions));
     dbg!(part_two(&instuctions));
+    Ok(())
+}
+
+fn main() {
+    run().unwrap();
 }
 
 #[cfg(test)]
@@ -111,7 +108,7 @@ mod tests {
 
     #[test]
     fn test_parse() {
-        let parsed = parse_input(&test_input()).unwrap();
+        let parsed = parse_input(&mut TEST_INPUT.as_bytes()).unwrap();
         assert_eq!(
             parsed,
             vec![
@@ -145,20 +142,13 @@ mod tests {
 
     #[test]
     fn test_part_one() {
-        let instructions = parse_input(&test_input()).unwrap();
+        let instructions = parse_input(&mut TEST_INPUT.as_bytes()).unwrap();
         assert_eq!(part_one(&instructions), 150);
     }
 
     #[test]
     fn test_part_two() {
-        let instructions = parse_input(&test_input()).unwrap();
+        let instructions = parse_input(&mut TEST_INPUT.as_bytes()).unwrap();
         assert_eq!(part_two(&instructions), 900);
-    }
-
-    fn test_input() -> Vec<String> {
-        TEST_INPUT
-            .split("\n")
-            .map(|s| s.to_string())
-            .collect::<Vec<_>>()
     }
 }

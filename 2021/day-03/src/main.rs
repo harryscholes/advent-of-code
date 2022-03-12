@@ -1,17 +1,10 @@
 use std::{
     collections::HashMap,
-    fs::File,
-    io::{self, BufRead, BufReader},
+    io::{self, BufRead},
     num,
 };
-
 use thiserror::Error;
-
-fn read_input() -> Result<Vec<String>, Error> {
-    let file = File::open("input.txt")?;
-    let buf = BufReader::new(file);
-    buf.lines().map(|l| Ok(l?)).collect()
-}
+use utils::read_input;
 
 #[derive(Debug, PartialEq)]
 struct Input {
@@ -147,26 +140,45 @@ enum Error {
     Io(#[from] io::Error),
 }
 
-fn main() {
-    let input = parse_input(&read_input().unwrap());
+fn read_input_to_lines(buf: &mut dyn BufRead) -> Result<Vec<String>, Error> {
+    buf.lines().map(|l| Ok(l?)).collect()
+}
+
+fn run() -> Result<(), Error> {
+    let input = parse_input(&read_input_to_lines(&mut read_input()?)?);
     dbg!(part_one(&input));
     dbg!(part_two(&input));
+    Ok(())
+}
+
+fn main() {
+    run().unwrap();
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::{
+        co2_scrubber_rating, epsilon_rate, gamma_rate, oxygen_generator_rating, parse_input,
+        read_input_to_lines, Input,
+    };
     use std::collections::HashMap;
 
-    use crate::{
-        co2_scrubber_rating, epsilon_rate, gamma_rate, oxygen_generator_rating, parse_input, Input,
-    };
-
-    const TEST_INPUT: &str =
-        "00100\n11110\n10110\n10111\n10101\n01111\n00111\n11100\n10000\n11001\n00010\n01010";
+    const TEST_INPUT: &str = r#"00100
+11110
+10110
+10111
+10101
+01111
+00111
+11100
+10000
+11001
+00010
+01010"#;
 
     #[test]
     fn test_parse() {
-        let parsed = parse_input(&test_input());
+        let parsed = parse_input(&read_input_to_lines(&mut TEST_INPUT.as_bytes()).unwrap());
 
         let mut m = HashMap::new();
         m.insert(0, 7);
@@ -186,22 +198,15 @@ mod tests {
 
     #[test]
     fn test_part_one() {
-        let input = parse_input(&test_input());
+        let input = parse_input(&read_input_to_lines(&mut TEST_INPUT.as_bytes()).unwrap());
         assert_eq!(gamma_rate(&input), 22);
         assert_eq!(epsilon_rate(&input), 9);
     }
 
     #[test]
     fn test_part_two() {
-        let input = parse_input(&test_input());
+        let input = parse_input(&read_input_to_lines(&mut TEST_INPUT.as_bytes()).unwrap());
         assert_eq!(oxygen_generator_rating(&input), 23);
         assert_eq!(co2_scrubber_rating(&input), 10);
-    }
-
-    fn test_input() -> Vec<String> {
-        TEST_INPUT
-            .split("\n")
-            .map(|s| s.to_string())
-            .collect::<Vec<_>>()
     }
 }
